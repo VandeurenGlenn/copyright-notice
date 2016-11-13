@@ -1,0 +1,130 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="copyright-notice">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-direction: row;
+      }
+    </style>
+    <iron-icon icon="[[icon]]"></iron-icon>
+    <span class="notice">[[year]] [[name]]. [[_license]]. [[_documentationLicense]]</span>
+  </template>
+</dom-module>
+<script>
+  class CopyrightNotice extends Polymer.Element {
+    static get is() { return 'copyright-notice'; }
+    static get observedAttributes() {
+      return ['icon', 'src', 'year', 'name', 'license', 'no-media', 'documentation-license'];
+    }
+    static get config() {
+      return {
+        properties: {
+          /**
+           * the name of the author or organization
+           */
+          name: String,
+          /**
+           * The used license
+           */
+          license: {
+            type: String,
+            value: ''
+          },
+          year: {
+            type: Number,
+            value: 2016
+          },
+          icon: {
+            type: String,
+            value: 'copyright'
+          },
+          documentationLicense: {
+            type: String,
+            value: ''
+          },
+          src: String,
+          noMedia: {
+            type: Boolean,
+            value: false
+          }
+        }
+      }
+    }
+
+    constructor() {
+      super();
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (name && oldValue !== newValue) {
+        this[this._toJsProp(name)] = newValue;
+      }
+    }
+
+    get iconElement() {
+      return this.querySelector('iron-icon');
+    }
+
+    get _licensePrefix() {
+      return 'Code licensed under the [[license]] License';
+    }
+
+    get _documentationLicensePrefix() {
+      if (this.hasAttribute('documentation-license-prefix')) {
+        return this.getAttribute('documentation-license-prefix');
+      } else {
+        var parts = [
+          'Except as otherwise noted, Documentation',
+          'licensed under [[license]] License.'
+        ]
+        if (this.noMedia) {
+          return parts[0] + ' is ' + parts[1];
+        }
+        return parts[0] + ' & media are ' + parts[1];
+      }
+    }
+
+    set src(value) {
+      if (this.icon === null || this.icon === undefined) {
+        if (this.iconElement.icon) {
+          this.iconElement.icon = undefined;
+        }
+        this.iconElement.src = value;
+      }
+    }
+
+    set icon(value) {
+      if (this.src === null || this.src === undefined) {
+        if (this.iconElement.src) {
+          this.iconElement.src = undefined;
+        }
+        this.iconElement.icon = value;
+      }
+    }
+
+    set license(value) {
+      if (value) {
+        this._license = this._licensePrefix.replace('[[license]]', value);
+      }
+    }
+
+    set documentationLicense(value) {
+      if (value) {
+        this._documentationLicense = this._documentationLicensePrefix.replace('[[license]]', value);
+      }
+    }
+
+    _toJsProp(string) {
+      var parts = string.split('-');
+      if (parts.length > 1) {
+        var upper = parts[1].charAt(0).toUpperCase();
+        string =  parts[0] + upper + parts[1].slice(1).toLowerCase();
+      }
+      return string;
+    }
+  }
+  customElements.define(CopyrightNotice.is, CopyrightNotice);
+</script>
